@@ -4,17 +4,19 @@ from selenium.webdriver.support.ui import WebDriverWait
 from bs4 import BeautifulSoup
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from tqdm import tqdm
 import csv
 import time
+import random as r
 
 # standard driver init
 options = webdriver.FirefoxOptions()
 driver = webdriver.Firefox(options=options)
 
 # constants
-CSV_NAME = "scraping/bulletin.csv" # save file as
-PAGE = 1                           # page to start on (inclusive). technically not a constant
-PAGE_STOP = 12                     # page to end on (inclusive)
+CSV_NAME = "scraping/courses.csv" # save file as
+PAGE = 1                           # page to start on (inclusive)
+PAGE_STOP = 3                      # page to end on (inclusive)
 THROTTLE = 2                       # rate at which to send requests
 ATTEMPTS = 1                       # amount of times to recurse on error
 
@@ -30,7 +32,7 @@ def grabValue(content, string):
 # if the server is overloaded it will check if you're human.
 # this allows the user to complete the captcha, confirm that 
 # they have done this, and try again. 
-def pageResults(url, tries=1):
+def pageResults(url, tries=0):
   if(driver):
     # if the user has said "yes" without completing the captcha
     # a specified number of times, quit. 
@@ -44,7 +46,7 @@ def pageResults(url, tries=1):
     
     # manual handling
     if "confirm you are human" in html:
-      canContinue = input("User input requested. Continue? (y/n): ").strip().lower()
+      canContinue = input("\nCaptcha encountered. Continue? (y/n): ").strip().lower()
       if(canContinue == "y"):
         tries+=1
         return pageResults(url, tries)
@@ -60,6 +62,7 @@ def pageResults(url, tries=1):
     
 # write department urls for department scraper
 def deptDump():
+  print(f"Found {len(department_urls)} total departments")
   if(department_urls):
     with open('scraping/departments.txt', "w", encoding="utf-8") as file:
       for dept in department_urls:
@@ -82,8 +85,8 @@ with open(f'{CSV_NAME}', 'w', newline='', encoding='utf-8') as csvfile:
       "Credits"
     ])
   
-  while True:
-    url = f"https://bulletin.pugetsound.edu/courses?page={PAGE}"
+  for i in range(PAGE, PAGE_STOP+1, 1):
+    url = f"https://bulletin.pugetsound.edu/courses?page={i}"
     driver.get(url)
 
     # wait until the results have loaded
@@ -105,9 +108,9 @@ with open(f'{CSV_NAME}', 'w', newline='', encoding='utf-8') as csvfile:
     results = courseList.find_all("li")
     
     if results:
-      print(f"Courses found on page {PAGE}!")
+      print(f"Courses found on page {i}!")
       
-      for course in results:
+      for course in tqdm(results):
         #course code and course name
         courseCode = course.find("span", class_="pill-label").text
         courseName = course.find("a").text
@@ -116,7 +119,8 @@ with open(f'{CSV_NAME}', 'w', newline='', encoding='utf-8') as csvfile:
         newurl = course.find("a").get("href")
         html = pageResults(newurl)
 
-        time.sleep(THROTTLE)
+        # throttle
+        time.sleep(r.randrange(2, 4))
         
         soup = BeautifulSoup(html, "html.parser")
         content = soup.find("section")
@@ -160,10 +164,7 @@ with open(f'{CSV_NAME}', 'w', newline='', encoding='utf-8') as csvfile:
       quit()
     
     deptDump()
-    PAGE+=1
     
-    if(PAGE_STOP):
-      if(PAGE > PAGE_STOP):
-        deptDump()
-        driver.close()
-        quit()
+  deptDump()
+  driver.close()
+  quit()
