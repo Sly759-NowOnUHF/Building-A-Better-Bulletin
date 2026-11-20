@@ -1,0 +1,94 @@
+create table Staff(
+    staffID INTEGER PRIMARY KEY,
+    name TEXT 
+);
+
+create table StaffEmails(
+    staffID INTEGER PRIMARY KEY,
+    email TEXT,
+
+    FOREIGN KEY(staffID)
+    REFERENCES Staff(staffID)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
+
+create table Departments(
+    deptID TEXT PRIMARY KEY CHECK(length(deptID) = 4),
+    building TEXT
+);
+
+create table DepartmentHead(
+    deptID TEXT,
+    staffID INTEGER,
+
+    FOREIGN KEY(deptID)
+    REFERENCES Deparments(deptID)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+
+    FOREIGN KEY(staffID)
+    REFERENCES Staff(staffID)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
+
+create table StaffDepartments(
+    staffID INTEGER PRIMARY KEY,
+    deptID TEXT,
+
+    FOREIGN KEY(staffID)
+    REFERENCES Staff(staffID)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+
+    FOREIGN KEY(deptID)
+    REFERENCES Departments(deptID)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
+
+create table Courses(
+    courseID INTEGER,
+    courseName TEXT,
+    deptID TEXT,
+    location TEXT,
+    description TEXT,
+
+    PRIMARY KEY(courseID, deptID)
+
+    FOREIGN KEY(deptID)
+    REFERENCES Departments(deptID)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
+
+create table Teaches(
+    staffID INTEGER,
+    courseID INTEGER,
+
+    PRIMARY KEY(staffID, courseID)
+
+    FOREIGN KEY(staffID)
+    REFERENCES Staff(staffID)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+
+    FOREIGN KEY(courseID)
+    REFERENCES Courses(courseID)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
+
+create table PreReqs(
+    courseID INTEGER,
+    prereqID INTEGER,
+
+    PRIMARY KEY(courseID, prereqID)
+
+    FOREIGN KEY(courseID, prereqID)
+    REFERENCES Courses(courseID, courseID)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
+
