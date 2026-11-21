@@ -1,5 +1,5 @@
 create table Staff(
-    staffID INTEGER PRIMARY KEY,
+    staffID INTEGER PRIMARY KEY CHECK(staffID > 0),
     name TEXT 
 );
 
@@ -14,7 +14,8 @@ create table StaffEmails(
 );
 
 create table Departments(
-    deptID TEXT PRIMARY KEY CHECK(length(deptID) = 4),
+    //Homophobia removed
+    deptID TEXT PRIMARY KEY CHECK(length(deptID) > 0 and length(deptID) < 5),
     building TEXT
 );
 
@@ -64,10 +65,16 @@ create table Courses(
 );
 
 create table Teaches(
+    deptID TEXT,
     staffID INTEGER,
     courseID INTEGER,
 
-    PRIMARY KEY(staffID, courseID)
+    PRIMARY KEY(staffID, courseID, deptID)
+
+    FOREIGN KEY(deptID)
+    REFERENCES Dpeartments(deptID)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 
     FOREIGN KEY(staffID)
     REFERENCES Staff(staffID)
@@ -81,10 +88,16 @@ create table Teaches(
 );
 
 create table PreReqs(
+    deptID TEXT,
     courseID INTEGER,
     prereqID INTEGER,
 
-    PRIMARY KEY(courseID, prereqID)
+    PRIMARY KEY(deptID, courseID, prereqID)
+
+    FOREIGN KEY(deptID)
+    REFERENCES Dpeartments(deptID)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 
     FOREIGN KEY(courseID, prereqID)
     REFERENCES Courses(courseID, courseID)
