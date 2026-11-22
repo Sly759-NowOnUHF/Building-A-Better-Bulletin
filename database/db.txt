@@ -24,7 +24,7 @@ create table DepartmentHead(
     staffID INTEGER,
 
     FOREIGN KEY(deptID)
-    REFERENCES Deparments(deptID)
+    REFERENCES Departments(deptID)
     ON UPDATE CASCADE
     ON DELETE CASCADE
 
@@ -72,7 +72,7 @@ create table Teaches(
     PRIMARY KEY(staffID, courseID, deptID)
 
     FOREIGN KEY(deptID)
-    REFERENCES Dpeartments(deptID)
+    REFERENCES Departments(deptID)
     ON UPDATE CASCADE
     ON DELETE CASCADE
 
@@ -95,7 +95,7 @@ create table PreReqs(
     PRIMARY KEY(deptID, courseID, prereqID)
 
     FOREIGN KEY(deptID)
-    REFERENCES Dpeartments(deptID)
+    REFERENCES Departments(deptID)
     ON UPDATE CASCADE
     ON DELETE CASCADE
 
