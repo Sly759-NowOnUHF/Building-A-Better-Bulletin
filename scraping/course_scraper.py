@@ -8,15 +8,26 @@ from tqdm import tqdm
 import csv
 import time
 import random as r
+import argparse
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-s", "--start", help="Page to start on", type=int)
+parser.add_argument("-e", "--end", help="Page to end on", type=int)
+parser.add_argument("-c", "--csv_name", help="Alternate csv name")
+parser.add_argument("-t", "--txt_name", help="Alternate txt name")
+
+args = parser.parse_args()
 
 # standard driver init
 options = webdriver.FirefoxOptions()
 driver = webdriver.Firefox(options=options)
 
 # constants
-CSV_NAME = "scraping/courses.csv" # save file as
-PAGE = 1                           # page to start on (inclusive)
-PAGE_STOP = 3                      # page to end on (inclusive)
+CSV_NAME = args.csv_name if args.csv_name else "scraping/courses.csv" # save csv as
+TXT_NAME = args.txt_name if args.txt_name else "scraping/departments.txt"
+PAGE = args.start if args.start else 1                      # page to start on (inclusive)
+PAGE_STOP = args.end if args.end else 3                     # page to end on (inclusive)
 THROTTLE = 2                       # rate at which to send requests
 ATTEMPTS = 1                       # amount of times to recurse on error
 
@@ -64,7 +75,7 @@ def pageResults(url, tries=0):
 def deptDump():
   print(f"Found {len(department_urls)} total departments")
   if(department_urls):
-    with open('scraping/departments.txt', "w", encoding="utf-8") as file:
+    with open(TXT_NAME, "w", encoding="utf-8") as file:
       for dept in department_urls:
         file.write(f"{dept}\n")
 
