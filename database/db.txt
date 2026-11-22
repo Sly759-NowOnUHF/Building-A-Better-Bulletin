@@ -1,3 +1,12 @@
+drop table if exists Staff;
+drop table if exists StaffEmails;
+drop table if exists Departments;
+drop table if exists DepartmentHead;
+drop table if exists StaffDepartments;
+drop table if exists Courses;
+drop table if exists Teaches;
+drop table if exists PreReqs;
+
 create table Staff(
     staffID INTEGER PRIMARY KEY CHECK(staffID > 0),
     name TEXT 
@@ -14,7 +23,7 @@ create table StaffEmails(
 );
 
 create table Departments(
-    //Homophobia removed
+    --Homophobia removed
     deptID TEXT PRIMARY KEY CHECK(length(deptID) > 0 and length(deptID) < 5),
     building TEXT
 );
@@ -104,4 +113,3 @@ create table PreReqs(
     ON UPDATE CASCADE
     ON DELETE CASCADE
 );
-
