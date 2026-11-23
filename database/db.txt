@@ -1,7 +1,7 @@
 drop table if exists Courses;
 drop table if exists StaffDepartments;
 drop table if exists DepartmentHead;
-drop table if exists StaffEmails;
+drop table if exists Satisfies;
 drop table if exists Teaches;
 drop table if exists PreReqs;
 drop table if exists Departments;
@@ -9,23 +9,14 @@ drop table if exists Staff;
 
 create table Staff(
     staffID INTEGER PRIMARY KEY CHECK(staffID > 0),
-    name TEXT 
-);
-
-create table StaffEmails(
-    staffID INTEGER PRIMARY KEY,
-    email TEXT,
-
-    FOREIGN KEY(staffID)
-    REFERENCES Staff(staffID)
-    ON UPDATE CASCADE
-    ON DELETE CASCADE
+    name TEXT NOT NULL,
+    email TEXT CHECK(GLOB('*@pugetsound.edu')) NOT NULL
 );
 
 --Homophobia removed
-create table Departments(
-    deptID TEXT PRIMARY KEY CHECK(length(deptID) > 0 and length(deptID) < 5),
-    building TEXT
+create table Department(
+    deptID TEXT PRIMARY KEY CHECK(length(deptID) > 1 and length(deptID) < 5),
+    deptName TEXT
 );
 
 create table DepartmentHead(
