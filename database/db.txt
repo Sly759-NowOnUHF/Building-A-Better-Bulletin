@@ -113,3 +113,16 @@ create table PreReqs(
     ON UPDATE CASCADE
     ON DELETE CASCADE
 );
+
+create table Satisfies(
+    deptID TEXT,
+    courseID INTEGER,
+    satisfies TEXT,
+
+    PRIMARY KEY(deptID, courseID, satisfies)
+
+    FOREIGN KEY(deptID, courseID)
+    REFERENCES Courses(deptID, courseID)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
