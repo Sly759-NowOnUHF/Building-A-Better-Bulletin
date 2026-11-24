@@ -53,11 +53,10 @@ create table Courses(
     courseID INTEGER,
     courseName TEXT,
     deptID TEXT,
-    location TEXT,
+    credits INTEGER,
     description TEXT,
 
     PRIMARY KEY(courseID, deptID)
-
     FOREIGN KEY(deptID)
     REFERENCES Departments(deptID)
     ON UPDATE CASCADE
