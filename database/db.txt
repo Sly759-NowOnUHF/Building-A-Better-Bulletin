@@ -1,22 +1,22 @@
+drop table if exists Courses;
+drop table if exists StaffDepartment;
+drop table if exists DepartmentHead;
+drop table if exists Satisfies;
+drop table if exists Teaches;
+drop table if exists PreReqs;
+drop table if exists Department;
+drop table if exists Staff;
+
 create table Staff(
     staffID INTEGER PRIMARY KEY CHECK(staffID > 0),
-    name TEXT 
+    name TEXT NOT NULL,
+    email TEXT CHECK(email LIKE '%@pugetsound.edu') NOT NULL
 );
 
-create table StaffEmails(
-    staffID INTEGER PRIMARY KEY,
-    email TEXT,
-
-    FOREIGN KEY(staffID)
-    REFERENCES Staff(staffID)
-    ON UPDATE CASCADE
-    ON DELETE CASCADE
-);
-
-create table Departments(
-    //Homophobia removed
-    deptID TEXT PRIMARY KEY CHECK(length(deptID) > 0 and length(deptID) < 5),
-    building TEXT
+--Homophobia removed
+create table Department(
+    deptID TEXT PRIMARY KEY CHECK(length(deptID) > 1 and length(deptID) < 5),
+    deptName TEXT
 );
 
 create table DepartmentHead(
@@ -24,7 +24,7 @@ create table DepartmentHead(
     staffID INTEGER,
 
     FOREIGN KEY(deptID)
-    REFERENCES Deparments(deptID)
+    REFERENCES Department(deptID)
     ON UPDATE CASCADE
     ON DELETE CASCADE
 
@@ -34,7 +34,7 @@ create table DepartmentHead(
     ON DELETE CASCADE
 );
 
-create table StaffDepartments(
+create table StaffDepartment(
     staffID INTEGER PRIMARY KEY,
     deptID TEXT,
 
@@ -44,7 +44,7 @@ create table StaffDepartments(
     ON DELETE CASCADE
 
     FOREIGN KEY(deptID)
-    REFERENCES Departments(deptID)
+    REFERENCES Department(deptID)
     ON UPDATE CASCADE
     ON DELETE CASCADE
 );
@@ -53,13 +53,12 @@ create table Courses(
     courseID INTEGER,
     courseName TEXT,
     deptID TEXT,
-    location TEXT,
+    credits INTEGER check(credits <= 1 and credits >= 0),
     description TEXT,
 
     PRIMARY KEY(courseID, deptID)
-
     FOREIGN KEY(deptID)
-    REFERENCES Departments(deptID)
+    REFERENCES Department(deptID)
     ON UPDATE CASCADE
     ON DELETE CASCADE
 );
@@ -72,7 +71,7 @@ create table Teaches(
     PRIMARY KEY(staffID, courseID, deptID)
 
     FOREIGN KEY(deptID)
-    REFERENCES Dpeartments(deptID)
+    REFERENCES Department(deptID)
     ON UPDATE CASCADE
     ON DELETE CASCADE
 
@@ -95,7 +94,7 @@ create table PreReqs(
     PRIMARY KEY(deptID, courseID, prereqID)
 
     FOREIGN KEY(deptID)
-    REFERENCES Dpeartments(deptID)
+    REFERENCES Department(deptID)
     ON UPDATE CASCADE
     ON DELETE CASCADE
 
@@ -105,3 +104,15 @@ create table PreReqs(
     ON DELETE CASCADE
 );
 
+create table Satisfies(
+    deptID TEXT,
+    courseID INTEGER,
+    satisfies TEXT,
+
+    PRIMARY KEY(deptID, courseID, satisfies)
+
+    FOREIGN KEY(deptID, courseID)
+    REFERENCES Courses(deptID, courseID)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
