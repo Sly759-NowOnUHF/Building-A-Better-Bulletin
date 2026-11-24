@@ -3,8 +3,8 @@ import pandas as pd
 
 # all files in directory
 script_dir = Path(__file__).resolve().parent
-course_files = list((script_dir / "results").rglob("courses*.csv"))
-dept_files = list((script_dir / "results").rglob("depts*.csv"))
+course_files = list((script_dir / "partials").rglob("courses*.csv"))
+dept_files = list((script_dir / "partials").rglob("depts*.csv"))
  
 # append csvs
 combined_courses = pd.concat(
@@ -24,6 +24,6 @@ satisfies_csv = satisfies.explode("Satisfies").dropna().reset_index()[["Course_C
 combined_departments["Duplicate"] = combined_departments.duplicated()
 combined_departments = combined_departments.loc[combined_departments["Duplicate"] == False, ["Department_Code","Department_Name","Department_URL"]].sort_values(by=["Department_Code"])
 
-combined_courses.to_csv("scraping/courses.csv", index=False)
-combined_departments.to_csv("scraping/departments.csv", index=False)
-satisfies_csv.to_csv("scraping/satisfies.csv", index=False)
+combined_courses.to_csv("scraping/results/courses.csv", index=False)
+combined_departments.to_csv("scraping/results/departments.csv", index=False)
+satisfies_csv.to_csv("scraping/results/satisfies.csv", index=False)
