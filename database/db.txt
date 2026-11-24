@@ -4,13 +4,13 @@ drop table if exists DepartmentHead;
 drop table if exists Satisfies;
 drop table if exists Teaches;
 drop table if exists PreReqs;
-drop table if exists Departments;
+drop table if exists Department;
 drop table if exists Staff;
 
 create table Staff(
     staffID INTEGER PRIMARY KEY CHECK(staffID > 0),
     name TEXT NOT NULL,
-    email TEXT CHECK(GLOB('*@pugetsound.edu')) NOT NULL
+    email TEXT CHECK(email LIKE '%@pugetsound.edu') NOT NULL
 );
 
 --Homophobia removed
