@@ -14,8 +14,8 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("-s", "--start", help="Page to start on", type=int)
 parser.add_argument("-e", "--end", help="Page to end on", type=int)
-parser.add_argument("-c", "--csv_name", help="Alternate csv name")
-parser.add_argument("-t", "--txt_name", help="Alternate txt name")
+parser.add_argument("-cn", "--course_name", help="Alternate course csv name")
+parser.add_argument("-dn", "--department_name", help="Alternate department csv name")
 
 args = parser.parse_args()
 
@@ -24,12 +24,12 @@ options = webdriver.FirefoxOptions()
 driver = webdriver.Firefox(options=options)
 
 # constants
-CSV_NAME = args.csv_name if args.csv_name else "scraping/courses.csv" # save csv as
-TXT_NAME = args.txt_name if args.txt_name else "scraping/departments.txt"
-PAGE = args.start if args.start else 1                      # page to start on (inclusive)
-PAGE_STOP = args.end if args.end else 3                     # page to end on (inclusive)
-THROTTLE = 2                       # rate at which to send requests
-ATTEMPTS = 1                       # amount of times to recurse on error
+COURSE_CSV = args.course_name if args.course_name else "courses.csv"
+DEPT_CSV = args.department_name if args.department_name else "departments.csv"
+PAGE_START = args.start if args.start else 1    # page to start on (inclusive)
+PAGE_STOP = args.end if args.end else 1         # page to end on (inclusive)
+ATTEMPTS = 1                                    # amount of times to recurse on error
+THROTTLE = 2                                    # rate at which to send requests
 
 # other variables
 department_urls = set(())          # no duplicate urls
@@ -73,20 +73,32 @@ def pageResults(url, tries=0):
     
 # write department urls for department scraper
 def deptDump():
-  print(f"Found {len(department_urls)} total departments")
   if(department_urls):
-    with open(TXT_NAME, "w", encoding="utf-8") as file:
+    with open(DEPT_CSV, "w", newline='', encoding="utf-8") as file:
+      write = csv.writer(file, delimiter=',')
+      
+      write.writerow([
+        "Department_Code",
+        "Department_Name",
+        "Department_URL"
+      ])
+      
       for dept in department_urls:
-        file.write(f"{dept}\n")
+        write.writerow([
+          dept[0],
+          dept[1],
+          dept[2]
+        ])
 
 # write csv file
-with open(f'{CSV_NAME}', 'w', newline='', encoding='utf-8') as csvfile:
+with open(f'{COURSE_CSV}', 'w', newline='', encoding='utf-8') as csvfile:
   writer = csv.writer(csvfile, delimiter=',')
   
   # columns
   writer.writerow([
       "Course_Code",
       "Course_Name",
+      "Course_Description",
       "Dept",
       "Career",
       "Prerequsites",
@@ -96,7 +108,7 @@ with open(f'{CSV_NAME}', 'w', newline='', encoding='utf-8') as csvfile:
       "Credits"
     ])
   
-  for i in range(PAGE, PAGE_STOP+1, 1):
+  for i in range(PAGE_START, PAGE_STOP+1, 1):
     url = f"https://bulletin.pugetsound.edu/courses?page={i}"
     driver.get(url)
 
@@ -136,13 +148,10 @@ with open(f'{CSV_NAME}', 'w', newline='', encoding='utf-8') as csvfile:
         soup = BeautifulSoup(html, "html.parser")
         content = soup.find("section")
         
-        # for department scraping
-        deptUrl = content.find("h3", string="Department(s)").find_next("a").get("href")
-        department_urls.add(f"https://bulletin.pugetsound.edu{deptUrl}")
-        
         # keys whose values i want to grab
         # to do: handling for courses with multiple departments (can't find any examples)
         searches = [
+          "Course Description",
           "Department(s)", 
           "Career", 
           "Prerequisites", 
@@ -161,14 +170,20 @@ with open(f'{CSV_NAME}', 'w', newline='', encoding='utf-8') as csvfile:
           courseName,
           
           # kind of a nightmare for right now
-          results[0], # dept
-          results[1], # career
-          results[2], # prereqs
-          results[3], # satisfies
-          results[4], # offered
-          results[5], # final exam
-          results[6], # credits
+          results[0], # description
+          results[1], # dept
+          results[2], # career
+          results[3], # prereqs
+          results[4], # satisfies
+          results[5], # offered
+          results[6], # final exam
+          results[7], # credits
         ])
+        
+        # for department scraping
+        deptUrl = content.find("h3", string="Department(s)").find_next("a").get("href")
+        dept = courseCode.split(" ")[0]
+        department_urls.add((dept, results[1], f"https://bulletin.pugetsound.edu{deptUrl}"))
     else: 
       deptDump()
       driver.close()
